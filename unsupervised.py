@@ -1,6 +1,6 @@
 import numpy as np
 from tqdm import tqdm
-from .construct_base_graph import ConstructGraph
+from construct_base_graph import ConstructGraph
 
 class EncodeGraph:
 	def __init__(self, path="./data/HR/HR_edges.csv", min_connections=10, embedding_dim=100, alpha=0.75, synchronic_update=True):
