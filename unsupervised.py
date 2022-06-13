@@ -1,6 +1,17 @@
 import numpy as np
-from tqdm import tqdm
 from construct_base_graph import ConstructGraph
+from IPython import get_ipython
+
+try:
+	shell = get_ipython().__class__.__name__
+	if shell == 'ZMQInteractiveShell':
+		from tqdm.notebook import tqdm   # Jupyter notebook or qtconsole
+	elif shell == 'TerminalInteractiveShell':
+		from tqdm import tqdm # Terminal running IPython
+	else:
+		from tqdm import tqdm  # Other type (?)
+except NameError:
+	from tqdm import tqdm 
 
 class EncodeGraph:
 	def __init__(self, path="./data/HR/HR_edges.csv", min_connections=10, embedding_dim=100, alpha=0.75, synchronic_update=True):
@@ -12,6 +23,7 @@ class EncodeGraph:
 		self.embeddings = np.random.normal(loc=0.0, scale=1.0, size=(len(self.cg.data_keys), self.embedding_dim))
 
 	def embed(self, num_iters):
+		progress = []
 		for epoch in range(num_iters):
 			if self.synchronic_update:
 				embeddings = np.zeros((len(self.cg.data_keys), self.embedding_dim))
@@ -31,6 +43,7 @@ class EncodeGraph:
 				running_loss += loss.item()
 				bar.set_description(str({"iter_no": epoch+1, "loss": round(running_loss/(idx+1), 3)}))
 			bar.close()
+			progress.append(running_loss/(idx+1))
 			if self.synchronic_update:
 				self.embeddings = embeddings
 		if self.synchronic_update:
@@ -39,6 +52,7 @@ class EncodeGraph:
 			output_path = 'asynchronic_updated_embedding.npy'
 		with open(output_path, 'wb') as f:
 			np.save(f, self.embeddings)
+		return progress
 
 if __name__ == '__main__':
 	eg = EncodeGraph(min_connections=20, synchronic_update=False)
