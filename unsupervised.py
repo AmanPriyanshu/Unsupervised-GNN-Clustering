@@ -46,6 +46,9 @@ class EncodeGraph:
 			progress.append(running_loss/(idx+1))
 			if self.synchronic_update:
 				self.embeddings = embeddings
+		keys_arr = np.array(self.cg.data_keys)
+		indices = np.argsort(keys_arr)
+		self.embeddings = self.embeddings[indices]
 		if self.synchronic_update:
 			output_path = 'synchronic_updated_embedding.npy'
 		else:
@@ -56,5 +59,7 @@ class EncodeGraph:
 
 if __name__ == '__main__':
 	eg = EncodeGraph(min_connections=20, synchronic_update=False)
-	eg.embed(5)
-	#0.2, 0.16, 0.12, 0.08, 0.06
+	progress = eg.embed(10)
+	print(progress)
+	#True = [0.20417472002595274, 0.1495597889762692, 0.11035480219710965, 0.08205113283742081, 0.06149363372346165, 0.04646298484540638, 0.0353981863614869, 0.02719463288748907, 0.021068037717305553, 0.01645958888075756]
+	#False = [0.20209164553150366, 0.14904244252956836, 0.11052413719366071, 0.08243816918031266, 0.061867613989980606, 0.046727504912119536, 0.035526625973649945, 0.02719582396213272, 0.020965983489706186, 0.016281603695358346]
